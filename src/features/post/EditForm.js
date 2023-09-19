@@ -1,5 +1,14 @@
 import React, { useCallback } from "react";
-import { Box, Card, alpha, Stack } from "@mui/material";
+import {
+  Box,
+  Card,
+  alpha,
+  Stack,
+  Avatar,
+  CardHeader,
+  Typography,
+  Link,
+} from "@mui/material";
 
 import { FormProvider, FTextField, FUploadImage } from "../../components/form";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,31 +17,27 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { editPost } from "./postSlice";
 import { LoadingButton } from "@mui/lab";
+import { Link as RouterLink } from "react-router-dom";
+
+import { fDate } from "../../utils/formatTime";
 
 const yupSchema = Yup.object().shape({
   content: Yup.string().required("Content is required"),
 });
 
-function EditFormModal({ postId, handleCloseDialogEditMenu }) {
-  const { isLoading, postsById } = useSelector((state) => state.post);
-
-  let editContent = postsById[postId].content;
-  let editImage = postsById[postId].image;
-
-  const defaultValues = {
-    content: editContent,
-    image: editImage,
-  };
+function EditForm({ post, handleCloseModal }) {
+  const { isLoading } = useSelector((state) => state.post);
 
   const methods = useForm({
     resolver: yupResolver(yupSchema),
-    defaultValues,
+    defaultValues: {
+      content: `${post.content}`,
+      image: `${post.image}`,
+    },
   });
   const {
     handleSubmit,
-    reset,
     setValue,
-
     formState: { isSubmitting },
   } = methods;
   const dispatch = useDispatch();
@@ -53,22 +58,47 @@ function EditFormModal({ postId, handleCloseDialogEditMenu }) {
     [setValue]
   );
 
-  const onSubmit = (data) => {
-    const { content, image } = data;
-
-    dispatch(editPost({ content, image, postId })).then(() => reset());
-    handleCloseDialogEditMenu();
+  const onSubmit = (updatedData) => {
+    dispatch(editPost(post._id, updatedData));
+    handleCloseModal();
   };
 
   return (
-    <Card sx={{ p: 3 }}>
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+    <Card sx={{ p: 2 }}>
+      <CardHeader
+        sx={{ mt: 0, justifyContent: "flex-start", mb: 2 }}
+        disableTypography
+        avatar={
+          <Avatar src={post?.author?.avatarUrl} alt={post?.author?.name} />
+        }
+        title={
+          <Link
+            variant="subtitle2"
+            color="text.primary"
+            component={RouterLink}
+            sx={{ fontWeight: 600 }}
+            to={`/user/${post.author._id}`}
+          >
+            {post?.author?.name}
+          </Link>
+        }
+        subheader={
+          <Typography
+            variant="caption"
+            sx={{ display: "block", color: "text.secondary" }}
+          >
+            {fDate(post.createdAt)}
+          </Typography>
+        }
+      />
+      <FormProvider methods={methods}>
         <Stack spacing={2}>
           <FTextField
             name="content"
             multiline
             fullWidth
             rows={4}
+            defaultValue={post.content}
             sx={{
               "& fieldset": {
                 borderWidth: `1px !important`,
@@ -80,6 +110,9 @@ function EditFormModal({ postId, handleCloseDialogEditMenu }) {
           <FUploadImage
             name="image"
             accept="image/*"
+            value={post.image}
+            defaultValue={post.image}
+            // defaultValue={`${post.image}`}
             maxSize={3145728}
             onDrop={handleDrop}
           />
@@ -96,8 +129,9 @@ function EditFormModal({ postId, handleCloseDialogEditMenu }) {
               variant="contained"
               size="small"
               loading={isSubmitting || isLoading}
+              onClick={handleSubmit(onSubmit)}
             >
-              Edit
+              Save
             </LoadingButton>
           </Box>
         </Stack>
@@ -106,4 +140,4 @@ function EditFormModal({ postId, handleCloseDialogEditMenu }) {
   );
 }
 
-export default EditFormModal;
+export default EditForm;

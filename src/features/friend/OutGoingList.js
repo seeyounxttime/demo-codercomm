@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Stack,
   Typography,
@@ -8,14 +9,13 @@ import {
   Grid,
   Container,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { getFriendRequests } from "./friendSlice";
 import UserCard from "./UserCard";
 import SearchInput from "../../components/SearchInput";
+import { getOutGoingList } from "./friendSlice";
 
-function FriendRequests() {
+function OutGoingList() {
   const [filterName, setFilterName] = useState("");
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
 
   const { currentPageUsers, usersById, totalUsers, totalPages } = useSelector(
     (state) => state.friend
@@ -28,7 +28,7 @@ function FriendRequests() {
   };
 
   useEffect(() => {
-    dispatch(getFriendRequests({ filterName, page }));
+    dispatch(getOutGoingList({ filterName, page }));
   }, [filterName, page, dispatch]);
 
   return (
@@ -72,4 +72,4 @@ function FriendRequests() {
   );
 }
 
-export default FriendRequests;
+export default OutGoingList;
