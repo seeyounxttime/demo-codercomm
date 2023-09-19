@@ -7,7 +7,7 @@ import CommentCard from "./CommentCard";
 import LoadingScreen from "../../components/LoadingScreen";
 import { COMMENTS_PER_POST } from "../../app/config";
 
-function CommentList({ postId, userID }) {
+function CommentList({ postId }) {
   const {
     commentsByPost,
     commentsById,
@@ -38,7 +38,11 @@ function CommentList({ postId, userID }) {
     renderComments = (
       <Stack spacing={1.5}>
         {comments.map((comment) => (
-          <CommentCard key={comment._id} comment={comment} userID={userID} />
+          <CommentCard
+            key={comment._id}
+            comment={comment}
+            postId={{ postId }}
+          />
         ))}
       </Stack>
     );

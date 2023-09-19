@@ -20,7 +20,7 @@ function PostList({ userId }) {
   return (
     <>
       {posts.map((post) => (
-        <PostCard key={post._id} post={post} userID={userId} />
+        <PostCard key={post._id} post={post} />
       ))}
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         {totalPosts ? (
